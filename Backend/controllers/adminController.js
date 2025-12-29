@@ -8,6 +8,10 @@ import jwt from 'jsonwebtoken'
 const addDoctor = async (req,res) => {
 
     try {
+        // DEBUG: show what we received (helpful when testing with Postman/form-data)
+        console.log('REQ BODY:', req.body)
+        console.log('REQ FILE:', req.file)
+
         const { name, email, password,speciality, degree, experience, about, fees, address } = req.body
         const imageFile = req.file
 
