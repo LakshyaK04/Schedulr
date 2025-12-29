@@ -15,11 +15,11 @@ connectCloudinary()
 // middlewares
 
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(cors())
 
 // api endpoint
 app.use('/api/admin', adminRouter)
-
 
 app.get('/', (req,res) =>{
     res.send('API WORKING')
