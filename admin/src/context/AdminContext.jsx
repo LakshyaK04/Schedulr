@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-export const AdminContext = createContext();
+export const AdminContext = createContext({});
 
 const AdminContextProvider = (props) => {
 
