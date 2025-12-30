@@ -11,6 +11,8 @@ const addDoctor = async (req,res) => {
         // DEBUG: show what we received (helpful when testing with Postman/form-data)
         console.log('REQ BODY:', req.body)
         console.log('REQ FILE:', req.file)
+        console.log('CONTENT-TYPE:', req.headers['content-type'])
+        console.log('IS MULTIPART:', req.is && req.is('multipart/form-data'))
 
         const { name, email, password,speciality, degree, experience, about, fees, address } = req.body
         const imageFile = req.file
