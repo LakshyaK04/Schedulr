@@ -1,15 +1,15 @@
 import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
 import { AdminContext } from '../context/AdminContext'
-import assets from '../assets/assets'
+import { assets } from '../assets/assets'
 
 const Sidebar = () => {
   
-  const {aToken} = useContext(AdminContext)
+  const { atoken } = useContext(AdminContext)
   
   return (
     <div>
-      {aToken && <ul>
+      {atoken && <ul>
         <NavLink>
           <img src={assets.home_icon} alt="" />
           <p>Dashboard</p>
