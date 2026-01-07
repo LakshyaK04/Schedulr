@@ -8,10 +8,10 @@ import Navbar from './components/Navbar.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import { Routes } from 'react-router-dom';
 import { Route } from 'react-router-dom';
-import Dashboard from './pages/Dashboard.jsx';
-import AllApointments from './pages/AllApointments.jsx';
-import AddDoctor from './pages/AddDoctor.jsx';
-import DoctorsList from './pages/DoctorsList.jsx';
+import Dashboard from './pages/Admin/Dashboard.jsx';
+import AllApointments from './pages/Admin/AllAppointments.jsx';
+import AddDoctor from './pages/Admin/AddDoctor.jsx';
+import DoctorsList from './pages/Admin/DoctorsList.jsx';
 
 const App = () => {
 
