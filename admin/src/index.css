@@ -3,3 +3,12 @@
 @theme {
   --color-primary: #5F6FFF;
 }
+
+::-webkit-scrollbar{
+  @apply hidden;
+}
+
+.input {
+  @apply w-full px-3 py-2 border rounded-md outline-none text-sm 
+         focus:ring-1 focus:ring-indigo-400;
+}
