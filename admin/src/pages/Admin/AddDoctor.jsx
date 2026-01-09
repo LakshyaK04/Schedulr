@@ -1,6 +1,8 @@
 import { assets } from "../../assets/assets";
-import { useState } from "react";
-
+import { useContext, useState } from "react";
+import { AdminContext } from "../../context/AdminContext";
+import { toast } from "react-toastify";
+import axios from "axios";
 const AddDoctor = () => {
 
 
@@ -17,9 +19,68 @@ const AddDoctor = () => {
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
 
+  const {backendUrl, aToken} = useContext(AdminContext);
+
 const onSubmitHandler = async(event) => {
   event.preventDefault();
-}
+  // Client-side validation to avoid server 400s
+  if (!docImg) return toast.error('Please upload doctor image');
+  if (!name || !email || !password || !degree || !fees || !about || !address1 || !address2) {
+    return toast.error('Please fill all required fields');
+  }
+  if (!email.includes('@')) return toast.error('Please enter a valid email');
+  if (password.length < 8) return toast.error('Password must be at least 8 characters long');
+
+  try {
+
+    const formData = new FormData();
+    // backend expects field name 'image' (upload.single('image'))
+    formData.append('image', docImg);
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('experience', experience);
+    formData.append('fees', fees);
+    formData.append('about', about);
+    formData.append('speciality', speciality);
+    formData.append('degree', degree);
+    formData.append('address', JSON.stringify({line1: address1, line2: address2}));
+  
+
+    //console.log(...formData);
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    }
+  );
+
+  const{data} = await axios.post(`${backendUrl}/api/admin/add-doctor`, formData, {headers: {Authorization: `Bearer ${aToken}`}});
+
+  if(data.success){
+    toast.success(data.message);
+    setDocImg(false);
+    setName('');
+    setEmail('');
+    setPassword('');
+    setFees('');
+    setAbout('');
+    setDegree('');
+    setAddress1('');
+    setAddress2('');
+  } else {
+    toast.error(data.message);
+  }
+  } catch (error) {
+    console.error('AddDoctor error:', error);
+    // Show server-provided message when available to help debug 400/500 responses
+    if (error && error.response && error.response.data) {
+      console.error('Server response:', error.response.data);
+      const msg = error.response.data.message || error.response.data.error || 'Something went wrong';
+      toast.error(msg);
+    } else {
+      toast.error('Something went wrong');
+    }
+  }
+};
 
 
 
