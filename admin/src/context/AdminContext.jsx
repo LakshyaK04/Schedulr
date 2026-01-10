@@ -35,9 +35,11 @@ const AdminContextProvider = (props) => {
         if (atoken) {
             localStorage.setItem('atoken', atoken)
             axios.defaults.headers.common['atoken'] = atoken
+            axios.defaults.headers.common['Authorization'] = `Bearer ${atoken}`
         } else {
             localStorage.removeItem('atoken')
             delete axios.defaults.headers.common['atoken']
+            delete axios.defaults.headers.common['Authorization']
         }
     }, [atoken])
 

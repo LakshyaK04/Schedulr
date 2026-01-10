@@ -86,7 +86,8 @@ const loginAdmin = async (req,res) => {
         if (email===process.env.ADMIN_EMAIL && password===process.env.ADMIN_PASSWORD) {
             
 
-            const token = jwt.sign( email + password, process.env.JWT_SECRET)
+            // Sign a token with a payload that includes role so middleware can validate
+            const token = jwt.sign({ role: 'admin', email }, process.env.JWT_SECRET, { expiresIn: '1d' })
             res.json({ success: true, message: "Admin logged in successfully", token })
         } else {
             return res.status(401).json({ success: false, message: "Invalid admin credentials" })

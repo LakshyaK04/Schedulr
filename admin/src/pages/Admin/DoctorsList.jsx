@@ -5,13 +5,14 @@ import { useEffect } from 'react';
 
 const DoctorsList = () => {
 
-  const { doctors, aToken, getAllDoctors } = useContext(AdminContext);
+  const { doctors, atoken, getAllDoctors } = useContext(AdminContext);
 
-  useEffect(() => {
-    if (aToken) {
-      getAllDoctors();
-    }
-  }, [aToken]);
+useEffect(() => {
+  if (atoken) {
+    getAllDoctors();
+  }
+}, [atoken]);
+
 
   return (
     <div>
