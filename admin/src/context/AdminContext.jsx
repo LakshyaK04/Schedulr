@@ -24,6 +24,22 @@ const AdminContextProvider = (props) => {
         }
     };
 
+    const changeAvailability = async(docId) => {
+        try {
+            const {data} = await axios.post(backendUrl + '/api/admin/change-availability', {docId}, {headers: {atoken}});
+            if(data.success){
+                toast.success(data.message);
+                getAllDoctors();
+            }
+            else{
+                toast.error(data.message);
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+
+    }
+
     // ensure axios baseURL is set from env
     useEffect(() => {
         if (backendUrl) axios.defaults.baseURL = backendUrl.replace(/\/$/, '')
@@ -48,7 +64,8 @@ const AdminContextProvider = (props) => {
         setAtoken,
         backendUrl,
         doctors,
-        getAllDoctors
+        getAllDoctors,
+        changeAvailability,
     }
 
     return (
