@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 @import "tailwindcss";
 
 @theme {
@@ -11,4 +13,8 @@
 .input {
   @apply w-full px-3 py-2 border rounded-md outline-none text-sm 
          focus:ring-1 focus:ring-indigo-400;
+}
+
+*{
+  font-family: Outfit;
 }
