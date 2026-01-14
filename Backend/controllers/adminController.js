@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import { getCloudinary } from '../config/cloudinary.js'
 import doctorModel from '../models/doctorModel.js'
 import jwt from 'jsonwebtoken'
+import fs from 'fs'
 
 // API for adding doctor
 const addDoctor = async (req,res) => {
@@ -46,13 +47,19 @@ const addDoctor = async (req,res) => {
             return res.status(503).json({ success: false, message: 'Image upload service is not configured. Please set Cloudinary credentials.' })
         }
 
-        const imageUpload= await cloudinary.uploader.upload(imageFile.path, {resource_type: "image"})
-        const imageUrl = imageUpload.secure_url
+        const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+  resource_type: "image"
+})
+
+    fs.unlink(imageFile.path, (err) => {
+    if (err) console.error('Failed to delete temp file:', err)
+})
+
 
         const doctorData = {
             name,
             email,
-            image: imageUrl,
+            image: imageUpload.secure_url,
             password: hashedPassword,
             speciality,
             degree,
@@ -74,7 +81,6 @@ const addDoctor = async (req,res) => {
         if (error && error.http_body) console.error('Cloudinary http_body:', error.http_body)
         res.status(500).json({success: false, message: "Internal server error"})
     }
-
 }
 
 //API for admin login
