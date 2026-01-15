@@ -1,22 +1,55 @@
-import mongoose from "mongoose";
+import appointmentModel from "../models/appointmentModel.js";
+import doctorModel from "../models/doctorModel.js";
+import userModel from "../models/userModel.js";
 
-const doctorSchema = new mongoose.Schema({
-    name: {type:String, required:true},
-    email: {type:String, required:true, unique:true},
-    password: {type:String, required:true},
-    image: {type:String, required:true},
-    speciality: {type:String, required:true},
-    degree: {type:String, required:true},
-    experience: {type:String, required:true},
-    about: {type:String, required:true},
-    // availability flag for admin toggle; default true
-    available: {type:Boolean, default:true},
-    fees: {type:Number, required:true},
-    address: {type:Object, required:true},
-    date: {type:Number, required: true},
-    slots_booked: {type:Object, default:{}}
-},{minimize:false})
+const bookApointment = async (req, res) => {
+  try {
+    const { userId, docId, slotDate, slotTime } = req.body;
 
-const doctorModel= mongoose.models.doctor || mongoose.model('doctor', doctorSchema)
+    const docData = await doctorModel.findById(docId).select("-password");
+    if (!docData) {
+      return res.json({ success: false, message: "Doctor not found" });
+    }
 
-export default doctorModel
+    let slots_booked = docData.slots_booked || {};
+
+    if (slots_booked[slotDate]) {
+      if (slots_booked[slotDate].includes(slotTime)) {
+        return res.json({ success: false, message: "Slot not available" });
+      } else {
+        slots_booked[slotDate].push(slotTime);
+      }
+    } else {
+      slots_booked[slotDate] = [];
+      slots_booked[slotDate].push(slotTime);
+    }
+
+    const userData = await userModel.findById(userId).select("-password");
+    if (!userData) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const appointmentData = {
+      userId,
+      docId,
+      slotDate,
+      slotTime,
+      userData,
+      docData,
+      amount: docData.fees, // ✅ REQUIRED
+      date: Date.now(),
+    };
+
+    const newAppointment = new appointmentModel(appointmentData);
+    await newAppointment.save();
+
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
+    res.json({ success: true, message: "Appointment booked successfully" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { bookApointment };
