@@ -2,16 +2,17 @@ import React, { useContext, useState } from 'react'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { assets } from '../assets/assets'
 
 const MyProfile = () => {
-  const { userData, setUserData, token, backendUrl, loadUserProfileData } = useContext(AppContext)
+  const { userData, setUserData, token, backendUrl, loadUserProfileData } =
+    useContext(AppContext)
+
   const [isEdit, setIsEdit] = useState(false)
   const [image, setImage] = useState(false)
 
-
   const saveProfile = async () => {
     try {
-
       const formData = new FormData()
 
       formData.append('name', userData.name)
@@ -25,9 +26,7 @@ const MyProfile = () => {
       const { data } = await axios.post(
         backendUrl + '/api/user/update-profile',
         formData,
-        {
-          headers: { token },
-        }
+        { headers: { token } }
       )
 
       if (data.success) {
@@ -48,31 +47,47 @@ const MyProfile = () => {
 
   return (
     <div className="max-w-lg flex flex-col gap-2 text-sm">
-      <div className="relative w-36">
-  <img
-    className="w-36 h-36 rounded-full object-cover"
-    src={
-      image
-        ? URL.createObjectURL(image)
-        : userData.image
-    }
-    alt="profile"
-  />
 
-  {isEdit && (
-    <label className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer">
-      <input
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => setImage(e.target.files[0])}
-      />
-      ✎
-    </label>
-  )}
-</div>
+      {/* ===== PROFILE IMAGE (INSTRUCTOR STYLE) ===== */}
+      <div className="flex items-center gap-4 mt-4">
+        {isEdit ? (
+          <label htmlFor="image" className="cursor-pointer">
+            <div className="relative">
+              <img
+                className="w-36 h-36 rounded-full object-cover"
+                src={
+                  image
+                    ? URL.createObjectURL(image)
+                    : userData.image
+                }
+                alt="profile"
+              />
 
+              <img
+                className="w-8 absolute bottom-2 right-2"
+                src={image ? '' : assets.upload_icon}
+                alt=""
+              />
+            </div>
 
+            <input
+              type="file"
+              id="image"
+              hidden
+              accept="image/*"
+              onChange={(e) => setImage(e.target.files[0])}
+            />
+          </label>
+        ) : (
+          <img
+            className="w-36 h-36 rounded-full object-cover"
+            src={userData.image}
+            alt="profile"
+          />
+        )}
+      </div>
+
+      {/* ===== NAME ===== */}
       {isEdit ? (
         <input
           className="bg-gray-50 text-3xl font-medium max-w-60 mt-4"
@@ -89,7 +104,7 @@ const MyProfile = () => {
 
       <hr />
 
-      {/* CONTACT INFO */}
+      {/* ===== CONTACT INFO ===== */}
       <p className="underline mt-3">CONTACT INFORMATION</p>
 
       <div className="grid grid-cols-[1fr_3fr] gap-y-2.5">
@@ -142,7 +157,7 @@ const MyProfile = () => {
         )}
       </div>
 
-      {/* BASIC INFO */}
+      {/* ===== BASIC INFO ===== */}
       <p className="underline mt-4">BASIC INFORMATION</p>
 
       <div className="grid grid-cols-[1fr_3fr] gap-y-2.5">
@@ -175,6 +190,7 @@ const MyProfile = () => {
         )}
       </div>
 
+      {/* ===== ACTION BUTTON ===== */}
       <div className="mt-8">
         {isEdit ? (
           <button
