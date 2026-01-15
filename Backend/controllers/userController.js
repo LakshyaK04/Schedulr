@@ -187,7 +187,7 @@ const bookApointment = async (req, res) => {
             docId,
             userData,
             docData,
-            amount: docData.fee,
+            amount: docData.fees,
             slotTime,
             slotDate,
             date: Date.now(),
