@@ -5,8 +5,7 @@ import jwt from 'jsonwebtoken'
 import { getCloudinary } from '../config/cloudinary.js'
 import fs from 'fs'
 import doctorModel from '../models/doctorModel.js'
-import { use } from 'react'
-
+import appointmentModel from '../models/appointmentModel.js'
 
 /* ============================
    REGISTER USER
@@ -167,9 +166,10 @@ const bookApointment = async (req, res) => {
             return res.json({ success: false, message: 'Doctor not found' })
         }
 
-        let slots_booked = docData.slotsBooked || {}
-        if (!slots_booked[slotDate]) {
-            if (!slots_booked[slotDate].includes(slotTime)) {
+        let slots_booked = docData.slots_booked || {}
+
+        if (slots_booked[slotDate]) {
+            if (slots_booked[slotDate].includes(slotTime)) {
                 return res.json({ success: false, message: 'Slot not available' })
             } else {
                 slots_booked[slotDate].push(slotTime)
@@ -180,7 +180,7 @@ const bookApointment = async (req, res) => {
         }
 
         const userData = await userModel.findById(userId).select('-password')
-        delete docData.slotsBooked
+        delete docData.slots_booked
 
         const appointmentData = {
             userId,
@@ -196,7 +196,7 @@ const bookApointment = async (req, res) => {
         const newAppointment = new appointmentModel(appointmentData)
         await newAppointment.save()
 
-        await doctorModel.findByIdAndUpdate(docId, { slotsBooked })
+        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
 
         res.json({
             success: true,

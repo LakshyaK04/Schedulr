@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { get } from "mongoose";
 
 export const AppContext = createContext();
 
@@ -45,10 +46,9 @@ const AppContextProvider = (props) => {
     }
 
     const value = {
-        doctors,
+        doctors, getDoctorsData,
         currencySymbol,
         backendUrl,
-        getDoctorsData,
         token,
         setToken,
         userData,
