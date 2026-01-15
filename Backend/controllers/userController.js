@@ -221,36 +221,51 @@ const listAppointments = async (req, res) => {
     }
 }
 
+import appointmentModel from "../models/appointmentModel.js";
+import doctorModel from "../models/doctorModel.js";
+
 const cancelAppointment = async (req, res) => {
-    try {
-        const { userId, appointmentId } = req.body
-        const appointment = await appointmentModel.findById(appointmentId)
+  try {
+    const { appointmentId } = req.body;
 
-        if(appointment.userId !== userId){
-            return  res.json({ success: false, message: 'Unauthorized action' })
-        }
+    const appointmentData = await appointmentModel.findById(appointmentId);
 
-        await appointmentModel.findByIdAndDelete(appointmentId, {cancelled: true})
-
-        const {docId, slotDate, slotTime} = appointment
-
-        const doctorData = await doctorModel.findById(docId)
-
-        let slots_booked = doctorData.slots_booked 
-
-        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
-
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
-
-        res.json({ success: true, message: 'Appointment cancelled successfully' })
-
+    if (!appointmentData) {
+      return res.json({ success: false, message: "Appointment not found" });
     }
-    catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+
+    // mark appointment cancelled
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
+    const { docId, slotDate, slotTime } = appointmentData;
+
+    const doctorData = await doctorModel.findById(docId);
+
+    if (doctorData && doctorData.slots_booked && doctorData.slots_booked[slotDate]) {
+      doctorData.slots_booked[slotDate] = doctorData.slots_booked[slotDate].filter(
+        (time) => time !== slotTime
+      );
+
+      // if empty, remove the date key
+      if (doctorData.slots_booked[slotDate].length === 0) {
+        delete doctorData.slots_booked[slotDate];
+      }
+
+      await doctorModel.findByIdAndUpdate(docId, {
+        slots_booked: doctorData.slots_booked,
+      });
     }
-    
-}
+
+    res.json({ success: true, message: "Appointment cancelled" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+export { cancelAppointment };
+
+
 
 export {
     registerUser,
