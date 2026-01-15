@@ -209,10 +209,55 @@ const bookApointment = async (req, res) => {
     }
 }
 
+const listAppointments = async (req, res) => {
+    try {
+        const { userId } = req.body
+        const appointments = await appointmentModel.find({ userId })
+        res.json({ success: true, message: 'Appointments fetched successfully', appointments })
+    }
+    catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+}
+
+const cancelAppointment = async (req, res) => {
+    try {
+        const { userId, appointmentId } = req.body
+        const appointment = await appointmentModel.findById(appointmentId)
+
+        if(appointment.userId !== userId){
+            return  res.json({ success: false, message: 'Unauthorized action' })
+        }
+
+        await appointmentModel.findByIdAndDelete(appointmentId, {cancelled: true})
+
+        const {docId, slotDate, slotTime} = appointment
+
+        const doctorData = await doctorModel.findById(docId)
+
+        let slots_booked = doctorData.slots_booked 
+
+        slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
+
+        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+
+        res.json({ success: true, message: 'Appointment cancelled successfully' })
+
+    }
+    catch (error) {
+        console.log(error)
+        res.json({ success: false, message: error.message })
+    }
+    
+}
+
 export {
     registerUser,
     loginUser,
     getProfile,
     updateProfile,
-    bookApointment
+    bookApointment,
+    listAppointments,
+    cancelAppointment
 }
