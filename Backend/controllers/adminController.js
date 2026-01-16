@@ -127,4 +127,53 @@ const appointmentsAdmin = async (req,res) => {
     }
 }
 
-export {addDoctor, loginAdmin, allDoctors, appointmentsAdmin}
+const appointmentCancel = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData) {
+      return res.json({ success: false, message: "Appointment not found" });
+    }
+
+    // already cancelled
+    if (appointmentData.cancelled) {
+      return res.json({
+        success: true,
+        message: "Appointment already cancelled",
+      });
+    }
+
+    // mark appointment cancelled
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+
+    const { docId, slotDate, slotTime } = appointmentData;
+    const cleanSlotTime = String(slotTime || "").trim();
+
+    const doctorData = await doctorModel.findById(docId);
+
+    if (doctorData?.slots_booked?.[slotDate]) {
+      doctorData.slots_booked[slotDate] = doctorData.slots_booked[
+        slotDate
+      ].filter((t) => typeof t === "string" && t !== "{}" && t !== cleanSlotTime);
+
+      // if empty, remove date key
+      if (doctorData.slots_booked[slotDate].length === 0) {
+        delete doctorData.slots_booked[slotDate];
+      }
+
+      await doctorModel.findByIdAndUpdate(docId, {
+        slots_booked: doctorData.slots_booked,
+      });
+    }
+
+    return res.json({ success: true, message: "Appointment cancelled" });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+export {addDoctor, loginAdmin, allDoctors, appointmentsAdmin, appointmentCancel}
