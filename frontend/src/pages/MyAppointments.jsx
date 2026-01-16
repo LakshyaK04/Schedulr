@@ -1,111 +1,121 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react'
-import { AppContext } from '../context/AppContext'
-import axios from 'axios'
-import { toast } from 'react-toastify'
+import React, { useContext, useEffect, useState, useCallback } from "react";
+import { AppContext } from "../context/AppContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const MyAppointments = () => {
-  const { backendUrl, token, getDoctorsData } = useContext(AppContext)
+  const { backendUrl, token, getDoctorsData } = useContext(AppContext);
 
-
-  const [appointments, setAppointments] = useState([])
+  const [appointments, setAppointments] = useState([]);
 
   const months = [
-    '',
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ]
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const slotDateFormat = (slotDate) => {
-    const dateArray = slotDate.split('_')
-    return `${dateArray[0]} ${months[Number(dateArray[1])]} ${dateArray[2]}`
-  }
+    const dateArray = slotDate.split("_");
+    return `${dateArray[0]} ${months[Number(dateArray[1])]} ${dateArray[2]}`;
+  };
 
   const getUserAppointments = useCallback(async () => {
     try {
-      const { data } = await axios.get(backendUrl + '/api/user/appointments', {
+      const { data } = await axios.get(backendUrl + "/api/user/appointments", {
         headers: { token },
-      })
+      });
 
       if (data.success) {
-        setAppointments(data.appointments.reverse())
+        setAppointments(data.appointments.reverse());
       } else {
-        toast.error(data.message)
+        toast.error(data.message);
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+      console.log(error);
+      toast.error(error.message);
     }
-  }, [backendUrl, token])
+  }, [backendUrl, token]);
 
   const cancelAppointment = async (appointmentId) => {
     try {
       const { data } = await axios.post(
-        backendUrl + '/api/user/cancel-appointment',
+        backendUrl + "/api/user/cancel-appointment",
         { appointmentId },
         { headers: { token } }
-      )
+      );
 
       if (data.success) {
-        toast.success(data.message)
-        getUserAppointments()
-        getDoctorsData()
+        toast.success(data.message);
+        getUserAppointments();
+        getDoctorsData();
       } else {
-        toast.error(data.message)
+        toast.error(data.message);
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+      console.log(error);
+      toast.error(error.message);
     }
-  }
+  };
 
   const initPay = (order) => {
+    if (!window.Razorpay) {
+      toast.error("Razorpay SDK not loaded. Add checkout.js in index.html");
+      return;
+    }
 
     const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
       currency: order.currency,
-      name: 'Appointment Payment',
-      description: 'Appointment Payment',
+      name: "Prescripto",
+      description: "Appointment Payment",
       order_id: order.id,
-      receipt: order.receipt,
       handler: async (response) => {
-        console.log(response);
-      }
-  }
+        console.log("Payment Success:", response);
+        toast.success("Payment successful");
+        getUserAppointments();
+      },
+      theme: {
+        color: "#5F6FFF",
+      },
+    };
 
-  const rzp = new window.Razorpay(options);
-  rzp.open();
-  }
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
 
   const appointmentRazorpay = async (appointmentId) => {
     try {
       const { data } = await axios.post(
-        backendUrl + '/api/user/payment-razorpay',
+        backendUrl + "/api/user/payment-razorpay",
         { appointmentId },
         { headers: { token } }
-      )
-      if(data.success){
-        initPay(data.order)
+      );
+
+      if (data.success) {
+        initPay(data.order);
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.message)
+      console.log(error);
+      toast.error(error.message);
     }
-  }
+  };
 
   useEffect(() => {
-    if (token) getUserAppointments()
-  }, [token, getUserAppointments])
+    if (token) getUserAppointments();
+  }, [token, getUserAppointments]);
 
   return (
     <div>
@@ -128,7 +138,9 @@ const MyAppointments = () => {
             </div>
 
             <div className="flex-1 text-sm text-zinc-600">
-              <p className="text-neutral-800 font-semibold">{item.docData.name}</p>
+              <p className="text-neutral-800 font-semibold">
+                {item.docData.name}
+              </p>
               <p>{item.docData.speciality}</p>
 
               <p className="text-zinc-700 font-medium mt-2">Address:</p>
@@ -138,7 +150,7 @@ const MyAppointments = () => {
               <p className="text-xs mt-2">
                 <span className="text-neutral-700 font-medium">
                   Date & Time:
-                </span>{' '}
+                </span>{" "}
                 {slotDateFormat(item.slotDate)} | {item.slotTime}
               </p>
             </div>
@@ -150,7 +162,10 @@ const MyAppointments = () => {
                 </button>
               ) : (
                 <>
-                  <button onClick={() => appointmentRazorpay(item._id)} className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300">
+                  <button
+                    onClick={() => appointmentRazorpay(item._id)}
+                    className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300"
+                  >
                     Pay Online
                   </button>
 
@@ -167,7 +182,9 @@ const MyAppointments = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
+console.log("RAZORPAY KEY:", import.meta.env.VITE_RAZORPAY_KEY_ID)
 
-export default MyAppointments
+
+export default MyAppointments;
