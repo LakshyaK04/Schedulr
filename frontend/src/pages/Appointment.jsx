@@ -16,7 +16,14 @@ const Appointment = () => {
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
   const [docInfo, setDocInfo] = useState(null)
+
+  // NEW STRUCTURE:
+  // docSlots = [
+  //   { date: Date, slots: [{ datetime: Date, time: "10:00 AM" }, ...] },
+  //   ...
+  // ]
   const [docSlots, setDocSlots] = useState([])
+
   const [slotIndex, setSlotIndex] = useState(0)
   const [slotTime, setSlotTime] = useState('')
 
@@ -33,6 +40,12 @@ const Appointment = () => {
     let today = new Date()
 
     for (let i = 0; i < 7; i++) {
+      // This is the date shown in the selector (fixed, stable)
+      const dayDate = new Date(today)
+      dayDate.setDate(today.getDate() + i)
+      dayDate.setHours(0, 0, 0, 0)
+
+      // This will be used for generating slots (changes time)
       let currentDate = new Date(today)
       currentDate.setDate(today.getDate() + i)
 
@@ -94,7 +107,14 @@ const Appointment = () => {
         currentDate.setMinutes(currentDate.getMinutes() + 30)
       }
 
-      setDocSlots((prev) => [...prev, timeSlots])
+      // Store date + slots (even if slots are empty)
+      setDocSlots((prev) => [
+        ...prev,
+        {
+          date: dayDate,
+          slots: timeSlots,
+        },
+      ])
     }
   }, [docInfo])
 
@@ -110,7 +130,13 @@ const Appointment = () => {
     }
 
     try {
-      const date = docSlots[slotIndex][0].datetime
+      // Use the selected day date (stable)
+      const date = docSlots?.[slotIndex]?.date
+
+      if (!date) {
+        toast.error('Please select a valid date')
+        return
+      }
 
       let day = date.getDate()
       let month = date.getMonth() + 1
@@ -204,9 +230,10 @@ const Appointment = () => {
         <div className="sm:ml-72 sm:pl-4 mt-4 font-medium text-gray-700">
           <p>Booking slots</p>
 
+          {/* DATE SELECTOR */}
           <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
             {docSlots.length > 0 &&
-              docSlots.map((item, index) => (
+              docSlots.map((dayObj, index) => (
                 <div
                   onClick={() => setSlotIndex(index)}
                   className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${
@@ -216,15 +243,17 @@ const Appointment = () => {
                   }`}
                   key={index}
                 >
-                  <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
-                  <p>{item[0] && item[0].datetime.getDate()}</p>
+                  <p>{daysOfWeek[dayObj.date.getDay()]}</p>
+                  <p>{dayObj.date.getDate()}</p>
                 </div>
               ))}
           </div>
 
+          {/* TIME SLOTS */}
           <div className="flex items-center gap-3 w-full overflow-x-scroll mt-4">
             {docSlots.length > 0 &&
-              docSlots[slotIndex]?.map((item, index) => (
+              docSlots[slotIndex]?.slots?.length > 0 &&
+              docSlots[slotIndex].slots.map((item, index) => (
                 <p
                   onClick={() => setSlotTime(item.time)}
                   className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${
@@ -237,6 +266,13 @@ const Appointment = () => {
                   {item.time.toLowerCase()}
                 </p>
               ))}
+
+            {/* OPTIONAL: show message when no slots */}
+            {docSlots.length > 0 && docSlots[slotIndex]?.slots?.length === 0 && (
+              <p className="text-sm text-gray-400">
+                No slots available for this day
+              </p>
+            )}
           </div>
 
           <button

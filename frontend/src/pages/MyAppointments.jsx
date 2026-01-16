@@ -67,7 +67,8 @@ const MyAppointments = () => {
     }
   };
 
-  const initPay = (order) => {
+  // Instructor style initPay(order)
+  const initPay = (order, appointmentId) => {
     if (!window.Razorpay) {
       toast.error("Razorpay SDK not loaded. Add checkout.js in index.html");
       return;
@@ -77,14 +78,37 @@ const MyAppointments = () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
       currency: order.currency,
-      name: "Prescripto",
+      name: "Appointment Payment",
       description: "Appointment Payment",
       order_id: order.id,
+      receipt: order.receipt,
+
       handler: async (response) => {
-        console.log("Payment Success:", response);
-        toast.success("Payment successful");
-        getUserAppointments();
+        console.log(response);
+
+        try {
+          // send response to backend (instructor style) + include appointmentId
+          const payload = { ...response, appointmentId };
+
+          const { data } = await axios.post(
+            backendUrl + "/api/user/verifyRazorpay",
+            payload,
+            { headers: { token } }
+          );
+
+          if (data.success) {
+            toast.success("Payment successful");
+            getUserAppointments();
+            getDoctorsData();
+          } else {
+            toast.error(data.message);
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error(error.message);
+        }
       },
+
       theme: {
         color: "#5F6FFF",
       },
@@ -103,7 +127,7 @@ const MyAppointments = () => {
       );
 
       if (data.success) {
-        initPay(data.order);
+        initPay(data.order, appointmentId);
       } else {
         toast.error(data.message);
       }
@@ -148,34 +172,47 @@ const MyAppointments = () => {
               <p className="text-xs">{item.docData.address.line2}</p>
 
               <p className="text-xs mt-2">
-                <span className="text-neutral-700 font-medium">
+                <span className="text-sm text-neutral-700 font-medium">
                   Date & Time:
                 </span>{" "}
                 {slotDateFormat(item.slotDate)} | {item.slotTime}
               </p>
             </div>
 
+            {/* ✅ MATCHING INSTRUCTOR BUTTON LOGIC */}
             <div className="flex flex-col gap-2 justify-end">
-              {item.cancelled ? (
+              {/* Paid */}
+              {!item.cancelled && item.payment && (
+                <button className="sm:min-w-48 py-2 border rounded text-stone-500 bg-indigo-50">
+                  Paid
+                </button>
+              )}
+
+              {/* Pay Online */}
+              {!item.cancelled && !item.payment && (
+                <button
+                  onClick={() => appointmentRazorpay(item._id)}
+                  className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300"
+                >
+                  Pay Online
+                </button>
+              )}
+
+              {/* Cancel appointment */}
+              {!item.cancelled && (
+                <button
+                  onClick={() => cancelAppointment(item._id)}
+                  className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-red-600 hover:text-white transition-all duration-300"
+                >
+                  Cancel appointment
+                </button>
+              )}
+
+              {/* Appointment cancelled */}
+              {item.cancelled && (
                 <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500">
                   Appointment cancelled
                 </button>
-              ) : (
-                <>
-                  <button
-                    onClick={() => appointmentRazorpay(item._id)}
-                    className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300"
-                  >
-                    Pay Online
-                  </button>
-
-                  <button
-                    onClick={() => cancelAppointment(item._id)}
-                    className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-red-600 hover:text-white transition-all duration-300"
-                  >
-                    Cancel appointment
-                  </button>
-                </>
               )}
             </div>
           </div>
@@ -184,7 +221,5 @@ const MyAppointments = () => {
     </div>
   );
 };
-console.log("RAZORPAY KEY:", import.meta.env.VITE_RAZORPAY_KEY_ID)
-
 
 export default MyAppointments;

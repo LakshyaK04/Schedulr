@@ -2,6 +2,7 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import fs from "fs";
+import crypto from "crypto";
 
 import { getCloudinary } from "../config/cloudinary.js";
 
@@ -255,7 +256,10 @@ const cancelAppointment = async (req, res) => {
 
     // already cancelled
     if (appointmentData.cancelled) {
-      return res.json({ success: true, message: "Appointment already cancelled" });
+      return res.json({
+        success: true,
+        message: "Appointment already cancelled",
+      });
     }
 
     // mark appointment cancelled
@@ -267,9 +271,9 @@ const cancelAppointment = async (req, res) => {
     const doctorData = await doctorModel.findById(docId);
 
     if (doctorData?.slots_booked?.[slotDate]) {
-      doctorData.slots_booked[slotDate] = doctorData.slots_booked[slotDate].filter(
-        (t) => typeof t === "string" && t !== "{}" && t !== cleanSlotTime
-      );
+      doctorData.slots_booked[slotDate] = doctorData.slots_booked[
+        slotDate
+      ].filter((t) => typeof t === "string" && t !== "{}" && t !== cleanSlotTime);
 
       // if empty, remove date key
       if (doctorData.slots_booked[slotDate].length === 0) {
@@ -289,28 +293,14 @@ const cancelAppointment = async (req, res) => {
 };
 
 /* ============================
-   RAZORPAY INSTANCE (SAFE)
-============================ */
-let razorpayInstance = null;
-
-if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
-  razorpayInstance = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  });
-}
-
-/* ============================
-   PAYMENT RAZORPAY
+   CREATE RAZORPAY ORDER
 ============================ */
 const paymentRazorpay = async (req, res) => {
   try {
-    if (!razorpayInstance) {
-      return res.json({
-        success: false,
-        message: "Razorpay keys missing in .env",
-      });
-    }
+    const razorpayInstance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
 
     const { appointmentId } = req.body;
 
@@ -318,6 +308,14 @@ const paymentRazorpay = async (req, res) => {
 
     if (!appointmentData) {
       return res.json({ success: false, message: "Appointment not found" });
+    }
+
+    if (appointmentData.cancelled) {
+      return res.json({ success: false, message: "Appointment is cancelled" });
+    }
+
+    if (appointmentData.payment) {
+      return res.json({ success: false, message: "Appointment already paid" });
     }
 
     const options = {
@@ -339,6 +337,53 @@ const paymentRazorpay = async (req, res) => {
   }
 };
 
+/* ============================
+   VERIFY RAZORPAY PAYMENT
+============================ */
+const verifyRazorpay = async (req, res) => {
+  try {
+    const {
+      appointmentId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    } = req.body;
+
+    if (
+      !appointmentId ||
+      !razorpay_order_id ||
+      !razorpay_payment_id ||
+      !razorpay_signature
+    ) {
+      return res.json({
+        success: false,
+        message: "Missing payment verification fields",
+      });
+    }
+
+    // Verify signature
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.json({ success: false, message: "Payment verification failed" });
+    }
+
+    // Mark appointment paid
+    await appointmentModel.findByIdAndUpdate(appointmentId, { payment: true });
+
+    return res.json({
+      success: true,
+      message: "Payment verified successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -348,4 +393,5 @@ export {
   listAppointments,
   cancelAppointment,
   paymentRazorpay,
+  verifyRazorpay,
 };

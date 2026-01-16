@@ -25,5 +25,6 @@ adminRouter.post('/test-upload', upload.single('image'), (req, res) => {
 adminRouter.post('/login', loginAdmin)
 adminRouter.post('/all-doctors', authAdmin, allDoctors)
 adminRouter.post('/change-availability', authAdmin, changeAvailability)
+adminRouter.get('/appointments', authAdmin, appointmentsAdmin)
 
 export default adminRouter
