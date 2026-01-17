@@ -1,7 +1,7 @@
 import doctorModel from "../models/doctorModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import
+import appointmentModel from "../models/appointmentModel.js";
 
 
 const changeAvailability = async (req, res) => {
@@ -64,5 +64,44 @@ const appointmentsDoctor = async (req, res) => {
     }
 }
 
+const appointmentComplete = async (req, res) => {
+    try{
+        const {docId, appointmentId} = req.body
 
-export {changeAvailability, doctorList, loginDoctor}
+        const appointmentData = await appointmentModel.findById(appointmentId)
+
+        if(appointmentData && appointmentData.docId === docId){
+
+            await appointmentModel.findByIdAndUpdate(appointmentId, {isCompleted: true})
+            return res.json({success:true, message:"Appointment marked as completed"})
+
+        } else {
+            return res.json({success:false, message:"Unauthorized action"})
+        }
+    } catch(error){
+        console.log(error)
+        res.json({success:false, message:error.message})
+    }
+}
+
+const appointmentCancel = async (req, res) => {
+    try{
+        const {docId, appointmentId} = req.body
+
+        const appointmentData = await appointmentModel.findById(appointmentId)
+
+        if(appointmentData && appointmentData.docId === docId){
+
+            await appointmentModel.findByIdAndUpdate(appointmentId, {cancelled: true})
+            return res.json({success:true, message:"Appointment marked as cancelled"})
+
+        } else {
+            return res.json({success:false, message:"Cancellation Failed"})
+        }
+    } catch(error){
+        console.log(error)
+        res.json({success:false, message:error.message})
+    }
+}
+
+export {changeAvailability, doctorList, loginDoctor, appointmentsDoctor, appointmentComplete, appointmentCancel}
