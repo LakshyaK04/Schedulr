@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { useContext } from 'react'
 import { AdminContext } from '../../context/AdminContext'
 import { AppContext } from '../../context/AppContext'
-import { assets } from '../../../../admin/src/assets/assets'
+import { assets } from '../../assets/assets'
 
 const AllApointments = () => {
 
@@ -39,13 +39,13 @@ const AllApointments = () => {
             <p className='max-sm:hidden'>{calculateAge(item.userData.dob)}</p>
             <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
             <div className='flex items-center gap-2'>
-              <img onClick={() => cancelAppointment(item._id)} className='w-8 rounded-full bg-gray-200' src={item.docData.image} alt="" /> <p>{item.docData.name}</p>
+              <img className='w-8 rounded-full bg-gray-200' src={item.docData.image} alt="" /> <p>{item.docData.name}</p>
             </div>
             <p>{currency}{item.amount}</p>
             {item.cancelled ?
              <p className='text-red-400 text-xs font-medium'>Cancelled</p> 
             :
-              <img className='w-10 cursor-pointer' src={assets.cancel_icon} alt="" />
+              <img onClick={()=>cancelAppointment(item._id)} className='w-10 cursor-pointer' src={assets.cancel_icon} alt="" />
             }
             
           </div>

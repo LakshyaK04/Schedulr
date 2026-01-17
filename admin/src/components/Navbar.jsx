@@ -1,10 +1,12 @@
 import React, { useContext } from 'react'
 import { assets } from '../assets/assets'
 import { AdminContext } from '../context/AdminContext'
+import { DoctorContext } from '../context/DoctorContext'
 import { useNavigate } from 'react-router-dom'
 const Navbar = () => {
     // read token and setter from context
     const { atoken, setAtoken } = useContext(AdminContext)
+    const { dToken, setDToken } = useContext(DoctorContext)
 
 
     const navigate = useNavigate()
@@ -12,6 +14,8 @@ const Navbar = () => {
         navigate('/')
         atoken && setAtoken('')
         atoken && localStorage.removeItem('atoken')
+        dToken && setDToken('')
+        dToken && localStorage.removeItem('dtoken')
     }
 
     console.log('Navbar render - atoken:', atoken)

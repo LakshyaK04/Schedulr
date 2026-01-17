@@ -5,6 +5,7 @@ import axios from 'axios';
 import { AdminContext } from '../context/AdminContext';
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify';
+import { DoctorContext } from '../context/DoctorContext';
 
 const Login = () => {
     
@@ -15,6 +16,7 @@ const Login = () => {
 
     // match the context property name from AdminContext (setAtoken)
     const { setAtoken, backendUrl } = useContext(AdminContext)
+    const {setDToken} = useContext(DoctorContext)
     const navigate = useNavigate()
 
 
@@ -38,7 +40,14 @@ const Login = () => {
                 }
             }
             else{
-
+                const {data} = await axios.post(backendUrl + '/api/doctor/login', {email, password});
+                if(data.success){
+                    localStorage.setItem('dtoken', data.token);
+                    setDToken(data.token);
+                    console.log('Doctor Login: token set', data.token);
+                } else {
+                    toast.error(data.message);
+                }
             }
         } catch (error) {
             const msg = error?.response?.data?.message || error.message || 'Login failed'
