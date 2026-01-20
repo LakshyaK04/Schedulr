@@ -7,6 +7,7 @@ import { connectCloudinary } from './config/cloudinary.js'
 import adminRouter from './routes/adminRoutes.js'
 import doctorRouter from './routes/doctorRoute.js'
 import userRouter from './routes/userRoute.js'
+import cronRouter from "./routes/cronRoutes.js";
 
 //app config
 
@@ -19,6 +20,7 @@ connectCloudinary({ debug: true })
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true })) 
+app.use("/api/cron", cronRouter);
 
 
 // api endpoint
