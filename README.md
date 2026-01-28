@@ -1,16 +1,149 @@
-# React + Vite
+🩺 Schedulr – Doctor Appointment Scheduling Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Schedulr is a full-stack doctor appointment management system that enables patients to book appointments, doctors to manage schedules, and administrators to control the entire platform.
+It is built using the MERN stack with a modern React + Vite frontend and a scalable Node.js backend.
 
-Currently, two official plugins are available:
+🚀 Features
+👨‍⚕️ Admin Panel
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Secure admin authentication
 
-## React Compiler
+Add and manage doctors
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Control doctor availability
 
-## Expanding the ESLint configuration
+View all appointments
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Cancel appointments
+
+Dashboard analytics (doctors, patients, bookings)
+
+🧑‍⚕️ Doctor Panel
+
+Secure doctor login
+
+View assigned appointments
+
+Mark appointments as completed or cancelled
+
+Manage profile (fees, availability, address)
+
+Earnings and appointment statistics
+
+👤 User (Patient) Side
+
+User registration & login
+
+Browse doctors by speciality
+
+Book appointments
+
+View and manage personal appointments
+
+Online / offline payment handling
+
+🛠️ Tech Stack
+Frontend
+
+React (Vite)
+
+Tailwind CSS
+
+React Router
+
+Axios
+
+React Toastify
+
+Backend
+
+Node.js
+
+Express.js
+
+MongoDB (Mongoose)
+
+JWT Authentication
+
+Multer + Cloudinary (Image Uploads)
+
+Razorpay (Payments)
+
+📁 Project Structure
+lakshyak04-schedulr/
+│
+├── Backend/              # Node.js + Express backend
+│   ├── config/           # DB & Cloudinary configs
+│   ├── controllers/      # Business logic
+│   ├── middlewares/      # Auth & upload middlewares
+│   ├── models/           # Mongoose schemas
+│   ├── routes/           # API routes
+│   └── server.js         # Entry point
+│
+├── frontend/             # Patient-facing React app
+│   └── src/
+│
+├── admin/                # Admin & Doctor dashboard
+│   └── src/
+│
+└── README.md
+
+🔐 Authentication & Security
+
+JWT-based authentication for Admin, Doctor, and User
+
+Role-based access control using middleware
+
+Secure password hashing with bcrypt
+
+Protected routes on both frontend and backend
+
+▶️ Running the Project Locally
+1️⃣ Backend
+cd Backend
+npm install
+npm run server
+
+2️⃣ Frontend (User)
+cd frontend
+npm install
+npm run dev
+
+3️⃣ Admin Panel
+cd admin
+npm install
+npm run dev
+
+📊 Dashboards
+
+Admin Dashboard: Platform-wide analytics & controls
+
+Doctor Dashboard: Earnings, appointments & patient tracking
+
+🧠 Learning Outcomes
+
+This project demonstrates:
+
+Real-world MERN architecture
+
+Role-based authentication
+
+File uploads with Cloudinary
+
+Appointment scheduling logic
+
+Clean separation of concerns
+
+Scalable folder structure
+
+📌 Future Improvements
+
+Email & SMS notifications
+
+Calendar integration
+
+Advanced appointment filtering
+
+Role-based analytics
+
+Deployment with Docker
