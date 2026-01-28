@@ -21,7 +21,7 @@ const Navbar = () => {
         onClick={() => navigate('/')}
         className="w-44 cursor-pointer"
         src={assets.logo}
-        alt="Prescripto"
+        alt="Schedulr"
       />
 
       {/* NAV LINKS */}

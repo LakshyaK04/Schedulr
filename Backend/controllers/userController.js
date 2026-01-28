@@ -51,8 +51,10 @@ const registerUser = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: error.message });
+    if (error.code === 11000) {
+      return res.json({ success: false, message: "Email already registered" });
+    }
+    return res.json({ success: false, message: "Something went wrong. Please try again." });
   }
 };
 
