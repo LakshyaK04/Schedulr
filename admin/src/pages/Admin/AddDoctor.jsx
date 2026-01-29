@@ -179,7 +179,7 @@ const onSubmitHandler = async(event) => {
         {/* Button */}
         <button
           type="submit"
-          className="mt-6 px-8 py-2 rounded-full bg-primary text-white text-sm hover:bg-indigo-600"
+          className="mt-6 px-8 py-2 rounded-full bg-primary text-white text-sm hover:bg-indigo-600 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
         >
           Add doctor
         </button>

@@ -68,12 +68,12 @@ const Login = () => {
                 <p>Password</p>
                 <input onChange={(e) => setPassword(e.target.value)} value={password} className='border border-[#DADADA] rounded w-full p-2 mt-1' type="password" placeholder="Password" required />
             </div>
-            <button className='bg-primary text-white w-full py-2 rounded-md text-base'>Login</button>
+            <button className='bg-primary text-white w-full py-2 rounded-md text-base hover:bg-primary/90 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200'>Login</button>
             {
                 state === 'Admin' ?
-                <p className='text-center text-sm'>Doctor Login? <span className='text-primary underline cursor-pointer' onClick={() => setState('Doctor')}>Click here</span></p>
+                <p className='text-center text-sm'>Doctor Login? <span className='text-primary underline cursor-pointer hover:text-primary/80 transition-colors duration-200' onClick={() => setState('Doctor')}>Click here</span></p>
                 :
-                <p className='text-center text-sm'>Admin Login? <span className='text-primary underline cursor-pointer' onClick={() => setState('Admin')}>Click here</span></p>
+                <p className='text-center text-sm'>Admin Login? <span className='text-primary underline cursor-pointer hover:text-primary/80 transition-colors duration-200' onClick={() => setState('Admin')}>Click here</span></p>
             }
         </div>
     </form>

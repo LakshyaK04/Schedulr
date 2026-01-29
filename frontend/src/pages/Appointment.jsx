@@ -277,7 +277,7 @@ const Appointment = () => {
 
           <button
             onClick={bookAppointment}
-            className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6"
+            className="bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6 hover:bg-primary/90 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
           >
             Book an appointment
           </button>

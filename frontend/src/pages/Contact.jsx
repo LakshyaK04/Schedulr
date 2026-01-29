@@ -15,7 +15,7 @@ const Contact = () => {
             <p className='text-gray-500'>Manipal University Jaipur <br /> Rajasthan, 303007</p>
             <p className='text-gray-500'>Tel: (+91) 620-590-9800 <br /> Email: kapoorlakshya42@gmail.com</p>
             <a href='mailto:kapoorlakshya42@gmail.com?subject=Contact%20from%20Schedulr'>
-              <button className='border border-black px-8 py-4 text-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-500'>Contact Us</button>
+              <button className='border border-black px-8 py-4 text-sm hover:bg-primary hover:text-white hover:border-primary hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200'>Contact Us</button>
             </a>
           </div>
         </div>
