@@ -124,7 +124,7 @@ const onSubmitHandler = async(event) => {
               <option>General physician</option>
               <option>Gynecologist</option>
               <option>Dermatologist</option>
-              <option>Pediatrician</option>
+              <option>Pediatricians</option>
               <option>Neurologist</option>
               <option>Gastroenterologist</option>
             </select>
